@@ -1,0 +1,15 @@
+FROM docker.io/alpine/git:latest as downloader
+
+RUN mkdir /dataset \
+    && git clone https://github.com/t0m0h1de/redisearch-getting-started.git /tmp/redisearch-getting-started \
+    && mv /tmp/redisearch-getting-started/sample-app/redisearch-docker/dataset/* /dataset/
+
+FROM docker.io/redis/redis-stack:latest
+
+USER 0
+
+RUN mkdir /dataset
+
+COPY --from=downloader /dataset/* /dataset/
+
+ENTRYPOINT [ "sh", "/dataset/import-data.sh" ]
