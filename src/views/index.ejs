@@ -19,11 +19,15 @@
     </p>
 </form>
 <ul>
-    <% if (zip) { %>
-        <li>zipcode: <%= zip.id %></li>
-        <li>name: <%= zip.city %></li>
-        <li>population: <%= zip.pop %></li>
-        <li>location: (<%= zip.loc[0] %>, <%= zip.loc[1] %>)</li>
+    <% if (data['theater']) { %>
+        <li>id: <%= data['theater']['id'] %></li>
+        <li>name: <%= data['theater']['name'] %></li>
+        <li>address: <%= data['theater']['address'] %></li>
+        <li>city: <%= data['theater']['city'] %></li>
+        <li>zip: <%= data['theater']['zip'] %></li>
+        <li>phone: <%= data['theater']['phone'] %></li>
+        <li>url: <%= data['theater']['url'] %></li>
+        <li>location: (<%= data['theater']['location']['longitude'] %>, <%= data['theater']['location']['latitude'] %>)</li>
     <% } %>
 </ul>
 </body>

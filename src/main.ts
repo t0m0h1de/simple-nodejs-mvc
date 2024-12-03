@@ -1,40 +1,29 @@
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { readFile as fsReadFile } from "fs";
 import path from "path";
+import { config } from 'dotenv';
+import { env } from 'process';
+import Router from './routes/router';
+import TheaterContorller from './controllers/theaterctl';
+import { Data } from 'ejs';
 
-async function renderTemplate() {
-    const templatePath = path.join(__dirname, 'views', 'index.ejs');
+config();
+const port = env['SERVER_PORT'] || '3000';
 
-
-}
-const port = 3000;
-
-function readFile(file: string, response: ServerResponse): void {
-    fsReadFile(`./${file}`, (errors, data) => {
-        if (errors) {
-            console.error("Error reading the file...");
-            response.writeHead(500, { "content-type": "text/plain" });
-            response.end("Internal Server Error");
-            return;
-        }
-        response.end(data);
-    });
-}
+const router = new Router();
+router.get("/", new TheaterContorller(), 'index');
 
 const app = createServer((request: IncomingMessage, response: ServerResponse) => {
-    if (request.url === "/" && request.method === "GET") {
-        response.writeHead(200, { "content-type": "text/html" });
-        readFile("public/index.html", response);
-    } else if (request.url === "/public/image/nodejs.png" && request.method === "GET") {
-        response.writeHead(200, { "content-type": "image/png"});
-        readFile("public/image/nodejs.png", response);
-    } else if (request.url === "/public/css/style.css" && request.method === "GET") {
-        response.writeHead(200, { "content-type": "text/css" });
-        readFile("public/css/style.css", response);
-    } else {
-        response.writeHead(404, { "content-type": "text/html"});
-        response.end(`Not found: ${request.url}`);
+    const url = new URL(request.url === undefined ? "/": request.url);
+    const queryParams: Data = {};
+    url.searchParams.forEach((value, key) => {
+        queryParams[key] = value;
+    });
+    const method: string = "";
+    if (request.method === undefined) {
+        console.error("Invalid method of request...");
     }
+    router.despatch(url.pathname, request.method, queryParams);
 })
 
 app.listen(port, () => {
