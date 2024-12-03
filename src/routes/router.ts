@@ -1,8 +1,8 @@
 import { Data } from "ejs"
-import Controller from "../controllers/controller"
+import { ServerResponse } from "http"
 
 type ControllerAction = {
-    controller: Controller,
+    controller: new () => { [key: string]: (data: Data, response: ServerResponse) => void },
     action: string
 }
 
@@ -16,30 +16,31 @@ export default class Router {
 
     protected routes: Route = {};
 
-    public addRoute(route: string, controller: Controller, action: string, method: string): void{
+    public addRoute(route: string, controller: new () => { [key: string]: (data: Data, response: ServerResponse) => void }, action: string, method: string): void {
         this.routes[route] = {
-            method: {
+            [method]: {
                 'controller': controller,
                 "action": action,
             }
         };
     }
 
-    public get(route: string, controller: Controller, action: string): void {
+    public get(route: string, controller: new () => { [key: string]: (data: Data, response: ServerResponse) => void }, action: string): void {
         this.addRoute(route, controller, action, "GET");
     }
 
-    public post(route: string, controller: Controller, action: string): void {
+    public post(route: string, controller: new () => { [key: string]: (data: Data, response: ServerResponse) => void }, action: string): void {
         this.addRoute(route, controller, action, "POST");
     }
 
-    public despatch(uri: string, method: string, data: Data) {
-        if (this.routes[uri] !== undefined || this.routes[uri][method] !== undefined) {
+    public despatch(uri: string, method: string, data: Data, response: ServerResponse): void {
+        if (this.routes[uri] === undefined || this.routes[uri][method] === undefined) {
             console.error(`No route found for URI: ${uri}`);
         } else {
             const controller = this.routes[uri][method]['controller'];
+            const controllerInstance = new controller();
             const action = this.routes[uri][method]['action'];
-            (controller[action] as Function)(data);
+            (controllerInstance[action] as Function)(data, response);
         }
     }
 }
