@@ -1,0 +1,5 @@
+simpleNodejsMVC:
+  name: simple-nodejs-mvc
+  image: simple-nodejs-mvc:latest
+nodejs:
+  baseImage: registry.access.redhat.com/ubi9/nodejs-22:latest

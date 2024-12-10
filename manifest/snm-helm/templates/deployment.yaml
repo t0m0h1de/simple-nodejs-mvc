@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"{{ .Values.simpleNodejsMVC.image }}"},"fieldPath":"spec.template.spec.containers[0].image"}]'
+  labels:
+    app: {{ .Values.simpleNodejsMVC.name }}
+  name: {{ .Values.simpleNodejsMVC.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: {{ .Values.simpleNodejsMVC.name }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        deployment: {{ .Values.simpleNodejsMVC.name }}
+    spec:
+      containers:
+      - image: {{ .Values.simpleNodejsMVC.image }}
+        name: {{ .Values.simpleNodejsMVC.name }}
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+status: {}

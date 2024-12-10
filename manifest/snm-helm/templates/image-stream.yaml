@@ -1,0 +1,11 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    app: {{ .Values.simpleNodejsMVC.name }}
+  name: {{ .Values.simpleNodejsMVC.name }}
+spec:
+  lookupPolicy:
+    local: false
+status:
+  dockerImageRepository: ""

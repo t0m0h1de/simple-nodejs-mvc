@@ -1,0 +1,33 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: {{ .Values.simpleNodejsMVC.name }}
+  name: {{ .Values.simpleNodejsMVC.name }}
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{ .Values.simpleNodejsMVC.image }}
+  postCommit: {}
+  resources: {}
+  source:
+    git:
+      uri: https://github.com/t0m0h1de/simple-nodejs-mvc
+    type: Git
+  strategy:
+    dockerStrategy:
+      dockerfilePath: docker/nodejs/Dockerfile
+    type: Docker
+  triggers:
+  - github:
+      secret: {{ randAlphaNum 20 | b64enc }}
+    type: GitHub
+  - generic:
+      secret: {{ randAlphaNum 20 | b64enc }}
+    type: Generic
+  - type: ConfigChange
+  - imageChange: {}
+    type: ImageChange
+status:
+  lastVersion: 0
