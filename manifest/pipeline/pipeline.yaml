@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: nodejs-build
+spec:
+  workspaces:
+    - name: shared
+  params:
+    - name: IMAGE_NAME
+      type: string
+    - name: GIT_REPO
+      type: string
+    - name: GIT_REVISION
+      type: string
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.GIT_REPO)
+        - name: revision
+          value: $(params.GIT_REVISION)
+      workspaces:
+        - name: output
+          workspace: shared
+    - name: build-image
+      taskRef: 
+        name: buildah
+        kind: Task
+      params:
+        - name: IMAGE
+          value: simple-nodejs-mvc:latest
+        - name: DOCKERFILE
+          value: ./docker/Containerfile
+        - name: SKIP_PUSH
+          value: "false"
+      runAfter:
+        - fetch-repository
+      workspaces:
+        - name: source
+          workspace: shared
