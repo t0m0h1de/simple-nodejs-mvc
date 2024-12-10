@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-nodejs-mvc
+spec:
+  template:
+    spec:
+      containers:
+        - name: simple-nodejs-mvc
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"

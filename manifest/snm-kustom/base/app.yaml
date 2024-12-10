@@ -1,0 +1,123 @@
+---
+# Source: snm-helm/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: simple-nodejs-mvc
+  name: simple-nodejs-mvc
+spec:
+  ports:
+  - name: 3000-tcp
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    deployment: simple-nodejs-mvc
+status:
+  loadBalancer: {}
+---
+# Source: snm-helm/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"simple-nodejs-mvc:latest"},"fieldPath":"spec.template.spec.containers[0].image"}]'
+  labels:
+    app: simple-nodejs-mvc
+  name: simple-nodejs-mvc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: simple-nodejs-mvc
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        deployment: simple-nodejs-mvc
+    spec:
+      containers:
+      - image: simple-nodejs-mvc:latest
+        name: simple-nodejs-mvc
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+status: {}
+---
+# Source: snm-helm/templates/build-config.yaml
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: simple-nodejs-mvc
+  name: simple-nodejs-mvc
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: simple-nodejs-mvc:latest
+  postCommit: {}
+  resources: {}
+  source:
+    git:
+      uri: https://github.com/t0m0h1de/simple-nodejs-mvc
+    type: Git
+  strategy:
+    dockerStrategy:
+      dockerfilePath: docker/nodejs/Dockerfile
+    type: Docker
+  triggers:
+  - github:
+      secret: ZndFWDE2SmpRQUZ2Q3hEcGUxUHM=
+    type: GitHub
+  - generic:
+      secret: bFJEdEQxbXYzQXF3MTI1TGZIT0Q=
+    type: Generic
+  - type: ConfigChange
+  - imageChange: {}
+    type: ImageChange
+status:
+  lastVersion: 0
+---
+# Source: snm-helm/templates/base-image-stream.yaml
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    app: simple-nodejs-mvc
+  name: nodejs-22
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - annotations:
+      openshift.io/imported-from: registry.access.redhat.com/ubi9/nodejs-22:latest
+    from:
+      kind: DockerImage
+      name: registry.access.redhat.com/ubi9/nodejs-22:latest
+    generation: null
+    importPolicy:
+      importMode: Legacy
+    name: latest
+    referencePolicy:
+      type: ""
+status:
+  dockerImageRepository: ""
+---
+# Source: snm-helm/templates/image-stream.yaml
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    app: simple-nodejs-mvc
+  name: simple-nodejs-mvc
+spec:
+  lookupPolicy:
+    local: false
+status:
+  dockerImageRepository: ""
