@@ -8,9 +8,14 @@ spec:
   params:
     - name: IMAGE_NAME
       type: string
+      default: simple-nodejs-mvc
     - name: GIT_REPO
       type: string
+      default: https://github.com/t0m0h1de/simple-nodejs-mvc
     - name: GIT_REVISION
+      type: string
+      default: main
+    - name: CONTAINER_IMAGE_URL
       type: string
   tasks:
     - name: fetch-repository
@@ -26,14 +31,14 @@ spec:
         - name: output
           workspace: shared
     - name: build-image
-      taskRef: 
+      taskRef:
         name: buildah
-        kind: Task
+        kind: ClusterTask
       params:
         - name: IMAGE
-          value: simple-nodejs-mvc:latest
+          value: $(params.CONTAINER_IMAGE_URL)
         - name: DOCKERFILE
-          value: ./docker/Containerfile
+          value: ./docker/nodejs/Dockerfile
         - name: SKIP_PUSH
           value: "false"
       runAfter:
