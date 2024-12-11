@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: nodejs-build-run
+spec:
+  pipelineRef:
+    name: nodejs-build
+  params:
+    - name: CONTAINER_IMAGE_URL
+      value: default-route-openshift-image-registry.apps.sandbox-m4.g2pi.p1.openshiftapps.com/tomohide-sawada-dev/simple-nodejs-mvc:latest
+  workspaces:
+    - name: shared
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
